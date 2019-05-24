@@ -1,7 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
-
+import { PasswordEncoder } from 'src/auth/passsword-encoder';
 
 @Entity()
 export class User {
@@ -26,6 +25,6 @@ export class User {
 
     @BeforeInsert()
     async hashPassword() {
-        this.password = await bcrypt.hash(this.password, 10);
+        this.password = new PasswordEncoder().encodePassword(this.password);
     }
 }

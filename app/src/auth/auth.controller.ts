@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, ValidationPipe, UsePipes, UseInterceptors, ClassSerializerInterceptor, SerializeOptions } from '@nestjs/common';
 import { User } from 'dist/src/user/user.entity';
 import { AuthService } from 'src/auth/auth.service';
-import { Credentials } from 'src/auth/credentials.dto';
+import { Credentials } from 'src/auth/dto/credentials.dto';
 import { UserService } from 'src/user/user.service';
-import { RegisterUserDto } from 'src/user/register-user.dto';
+import { RegisterUserDto } from 'src/auth/dto/register-user.dto';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller("api/auth")

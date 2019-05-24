@@ -1,10 +1,10 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./user.entity";
 import { Repository } from "typeorm";
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { RegisterUserDto } from "./register-user.dto";
-import { Credentials } from "src/auth/credentials.dto";
-import * as bcrypt from 'bcrypt';
+import { Injectable, NotFoundException, NotAcceptableException, ConflictException } from '@nestjs/common';
+import { RegisterUserDto } from "../auth/dto/register-user.dto";
+import { Credentials } from "src/auth/dto/credentials.dto";
+import { PasswordEncoder } from "src/auth/passsword-encoder";
 
 @Injectable()
 export class UserService {
@@ -22,11 +22,11 @@ export class UserService {
         return this.userRepository.findOne({ email: email })
     }
 
-    save(user: User): Promise<User> {
-        return this.userRepository.save(user);
-    }
-
-    registerUser(userDto: RegisterUserDto): Promise<User> {
+    async registerUser(userDto: RegisterUserDto): Promise<User> {
+        const userExists = (await this.userRepository.count({ email: userDto.email })) > 0
+        if (userExists) {
+            throw new ConflictException("User with this email already exists")
+        }
         let user = new User();
         user.email = userDto.email;
         user.name = userDto.name;
@@ -43,7 +43,7 @@ export class UserService {
             throw new NotFoundException('User not found');
         }
 
-        if (!bcrypt.compareSync(credentials.password, user.password)) {
+        if (new PasswordEncoder().compareHases(credentials.password, user.password)) {
             throw new NotFoundException('User not found');
         }
 
