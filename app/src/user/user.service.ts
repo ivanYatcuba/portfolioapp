@@ -1,8 +1,10 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./user.entity";
 import { Repository } from "typeorm";
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { RegisterUserDto } from "./register-user.dto";
+import { Credentials } from "src/auth/credentials.dto";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -32,5 +34,19 @@ export class UserService {
         user.birthDay = new Date(userDto.birthday);
         user.phone = userDto.phone;
         return this.userRepository.save(user);
+    }
+
+    public async login(credentials: Credentials): Promise<User> {
+        const user = await this.findByEmail(credentials.email);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        if (!bcrypt.compareSync(credentials.password, user.password)) {
+            throw new NotFoundException('User not found');
+        }
+
+        return user;
     }
 }

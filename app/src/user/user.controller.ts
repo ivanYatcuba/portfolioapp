@@ -1,20 +1,19 @@
-import { Controller, Get, Post, Body, ValidationPipe, UsePipes, UseInterceptors, ClassSerializerInterceptor, SerializeOptions } from '@nestjs/common';
+import { Controller, Get, UseGuards, SerializeOptions } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { CurrentUser } from './user.decorator';
 import { UserService } from './user.service';
-import { RegisterUserDto } from './register-user.dto';
-import { debug } from 'util';
-import { User } from 'dist/src/user/user.entity';
-
-@UseInterceptors(ClassSerializerInterceptor)
-@Controller("api")
+import { User } from './user.entity';
+@Controller("api/user")
 export class UserController {
-    constructor(private readonly appService: UserService) { }
+    constructor(
+        private readonly userService: UserService, ) { }
 
-    @Post("register")
-    @UsePipes(new ValidationPipe({ transform: true }))
+    @Get()
+    @UseGuards(AuthGuard("jwt"))
     @SerializeOptions({
         excludePrefixes: ["password"]
     })
-    registerUser(@Body() registerUserDto: RegisterUserDto): Promise<User> {
-        return this.appService.registerUser(registerUserDto);
+    getMyUserInfo(@CurrentUser('email') email: string): Promise<User> {
+        return this.userService.findByEmail(email);
     }
 }
