@@ -21,7 +21,7 @@ export class RegisterUserDto {
     @MinLength(6)
     readonly password: string;
 
-    @IsDateString()
+    @IsISO8601()
     readonly birthday: string;
     
     @IsString()

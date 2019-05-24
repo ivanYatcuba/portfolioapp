@@ -13,7 +13,6 @@ export class AuthController {
         private readonly authService: AuthService, ) { }
 
     @Post("register")
-    @UsePipes(new ValidationPipe({ transform: true }))
     @SerializeOptions({
         excludePrefixes: ["password"]
     })
@@ -22,7 +21,6 @@ export class AuthController {
     }
 
     @Get("login")
-    @UsePipes(new ValidationPipe({ transform: true }))
     registerUloginser(@Body() credentials: Credentials): Promise<string> {
         return this.authService.signIn(credentials);
     }
