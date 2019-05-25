@@ -3,8 +3,8 @@ import { User } from "./user.entity";
 import { Repository } from "typeorm";
 import { Injectable, NotFoundException, NotAcceptableException, ConflictException } from '@nestjs/common';
 import { RegisterUserDto } from "../auth/dto/register-user.dto";
-import { Credentials } from "src/auth/dto/credentials.dto";
-import { PasswordEncoder } from "src/auth/passsword-encoder";
+import { Credentials } from "../auth/dto/credentials.dto";
+import { PasswordEncoder } from "../auth/passsword-encoder";
 
 @Injectable()
 export class UserService {

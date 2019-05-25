@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { PasswordEncoder } from 'src/auth/passsword-encoder';
+import { PasswordEncoder } from '../auth/passsword-encoder';
 
 @Entity()
 export class User {
