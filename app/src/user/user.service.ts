@@ -55,10 +55,6 @@ export class UserService {
         }
 
         const passswordHash = await this.getUserPasswordHash(user.id);
-        const logger = new Logger(UserService.name);
-
-        logger.debug(passswordHash);
-
         if (new PasswordEncoder().compareHases(credentials.password, passswordHash)) {
             throw new NotFoundException("User not found");
         }
