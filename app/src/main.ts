@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe, UnprocessableEntityException } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 
+declare const module: any;
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
@@ -20,6 +22,10 @@ async function bootstrap() {
 
     }),
   );
+  if (module.hot) {
+    module.hot.accept();
+    module.hot.dispose(() => app.close());
+  }
   await app.listen(3000);
 }
 bootstrap();

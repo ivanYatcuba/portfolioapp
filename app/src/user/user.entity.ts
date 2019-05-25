@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { PasswordEncoder } from '../auth/passsword-encoder';
 
@@ -11,7 +11,7 @@ export class User {
     email: string;
 
     @Exclude()
-    @Column('text')
+    @Column('text', { select: false })
     password: string;
 
     @Column({ length: 120 })

@@ -1,5 +1,4 @@
-
-import { IsString, IsNotEmpty, IsEmail, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class Credentials {
 
@@ -15,4 +14,9 @@ export class Credentials {
     @MaxLength(30)
     @MinLength(6)
     readonly password: string;
+
+    constructor(email: string, password: string) {
+        this.email = email;
+        this.password = password;
+    }
 }

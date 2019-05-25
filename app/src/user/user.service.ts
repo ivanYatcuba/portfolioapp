@@ -1,10 +1,11 @@
-import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "./user.entity";
-import { Repository } from "typeorm";
-import { Injectable, NotFoundException, NotAcceptableException, ConflictException } from '@nestjs/common';
-import { RegisterUserDto } from "../auth/dto/register-user.dto";
-import { Credentials } from "../auth/dto/credentials.dto";
-import { PasswordEncoder } from "../auth/passsword-encoder";
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { Credentials } from '../auth/dto/credentials.dto';
+import { RegisterUserDto } from '../auth/dto/register-user.dto';
+import { PasswordEncoder } from '../auth/passsword-encoder';
+import { User } from './user.entity';
 
 @Injectable()
 export class UserService {
@@ -19,11 +20,11 @@ export class UserService {
     }
 
     findByEmail(email: string): Promise<User> {
-        return this.userRepository.findOne({ email: email })
+        return this.userRepository.findOne({ email: email });
     }
 
     async registerUser(userDto: RegisterUserDto): Promise<User> {
-        const userExists = (await this.userRepository.count({ email: userDto.email })) > 0
+        const userExists = (await this.userRepository.count({ email: userDto.email })) > 0;
         if (userExists) {
             throw new ConflictException("User with this email already exists")
         }
@@ -36,15 +37,30 @@ export class UserService {
         return this.userRepository.save(user);
     }
 
+    async getUserPasswordHash(id: number): Promise<string> {
+        return this.userRepository
+            .createQueryBuilder('user')
+            .select('user.password')
+            .where('user.id = :id', { id: id })
+            .getRawOne().then((data) => {
+                return data['user_password'];
+            });
+    }
+
     public async login(credentials: Credentials): Promise<User> {
         const user = await this.findByEmail(credentials.email);
 
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new NotFoundException("User not found");
         }
 
-        if (new PasswordEncoder().compareHases(credentials.password, user.password)) {
-            throw new NotFoundException('User not found');
+        const passswordHash = await this.getUserPasswordHash(user.id);
+        const logger = new Logger(UserService.name);
+
+        logger.debug(passswordHash);
+
+        if (new PasswordEncoder().compareHases(credentials.password, passswordHash)) {
+            throw new NotFoundException("User not found");
         }
 
         return user;

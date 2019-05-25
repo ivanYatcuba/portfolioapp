@@ -1,8 +1,9 @@
-import { Controller, Get, UseGuards, SerializeOptions } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+
 import { CurrentUser } from './user.decorator';
-import { UserService } from './user.service';
 import { User } from './user.entity';
+import { UserService } from './user.service';
 
 @Controller("api/user")
 export class UserController {
@@ -11,10 +12,7 @@ export class UserController {
 
     @Get()
     @UseGuards(AuthGuard("jwt"))
-    @SerializeOptions({
-        excludePrefixes: ["password"]
-    })
-    getMyUserInfo(@CurrentUser('email') email: string): Promise<User> {
-        return this.userService.findByEmail(email);
+    getMyUserInfo(@CurrentUser('email') currentUserEmail: string): Promise<User> {
+        return this.userService.findByEmail(currentUserEmail);
     }
 }
