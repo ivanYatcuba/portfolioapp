@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult, DeleteResult } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { User } from '../user/user.entity';
 import { CreateItemDto } from './dto/create-item.dto';
-import { Item } from './item.entity';
 import { UpdateItemDto } from './dto/update-item.dto';
+import { Item } from './item.entity';
 
 @Injectable()
 export class ItemService {
@@ -26,6 +26,17 @@ export class ItemService {
             throw new NotFoundException();
         }
         const updated = Object.assign(toUpdate, updateItem);
+        return this.itemRepository.save(updated);
+    }
+
+    async updateItemImage(itemId: number, image: string): Promise<Item> {
+        const toUpdate = await this.itemRepository.findOne({ id: itemId });
+        if (!toUpdate) {
+            const fs = require('fs');
+            fs.unlinkSync(image);
+            throw new NotFoundException();
+        }
+        const updated = Object.assign(toUpdate, { image: image });
         return this.itemRepository.save(updated);
     }
 

@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Param, Put, UseGuards, Delete } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseGuards, UseInterceptors, HttpException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { DeleteResult } from 'typeorm';
-
+import { FileInterceptor } from '@nestjs/platform-express'
 import { CurrentUser } from '../user/user.decorator';
 import { User } from '../user/user.entity';
 import { CreateItemDto } from './dto/create-item.dto';
@@ -9,10 +8,14 @@ import { UpdateItemDto } from './dto/update-item.dto';
 import { Item } from './item.entity';
 import { ItemService } from './item.service';
 
+
+
+
 @Controller('api/item')
 export class ItemController {
     constructor(
         private readonly itemService: ItemService, ) { }
+
 
     @Put()
     @UseGuards(AuthGuard("jwt"))
@@ -42,4 +45,9 @@ export class ItemController {
         return this.itemService.removeItem(id);
     }
 
+    @Post(':id/image')
+    @UseInterceptors(FileInterceptor('file'))
+    uploadFile(@Param('id') id: number, @UploadedFile() file) {
+        return this.itemService.updateItemImage(id, file.path);
+    }
 }
