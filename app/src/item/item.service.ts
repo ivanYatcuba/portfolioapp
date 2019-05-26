@@ -40,6 +40,17 @@ export class ItemService {
         return this.itemRepository.save(updated);
     }
 
+    async deleteItemImage(itemId: number) {
+        const toUpdate = await this.itemRepository.findOne({ id: itemId });
+        if (!toUpdate) {
+            throw new NotFoundException();
+        }
+        const fs = require('fs');
+        fs.unlinkSync(toUpdate.image);
+        const updated = Object.assign(toUpdate, { image: "" });
+        return this.itemRepository.save(updated);
+    }
+
     getItem(itemId: number): Promise<Item> {
         const item = this.itemRepository.findOne({ id: itemId });
         if (!item) {

@@ -8,9 +8,6 @@ import { UpdateItemDto } from './dto/update-item.dto';
 import { Item } from './item.entity';
 import { ItemService } from './item.service';
 
-
-
-
 @Controller('api/item')
 export class ItemController {
     constructor(
@@ -47,7 +44,12 @@ export class ItemController {
 
     @Post(':id/image')
     @UseInterceptors(FileInterceptor('file'))
-    uploadFile(@Param('id') id: number, @UploadedFile() file) {
+    uploadItemFile(@Param('id') id: number, @UploadedFile() file) {
         return this.itemService.updateItemImage(id, file.path);
+    }
+
+    @Delete(':id/image')
+    deleteFile(@Param('id') id: number) {
+        return this.itemService.deleteItemImage(id);
     }
 }
