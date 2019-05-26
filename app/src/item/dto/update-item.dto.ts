@@ -1,4 +1,5 @@
 import { MinLength, MaxLength, IsNotEmpty, IsString, IsOptional } from "class-validator";
+import { ApiModelProperty } from "@nestjs/swagger";
 
 export class UpdateItemDto {
 
@@ -7,6 +8,7 @@ export class UpdateItemDto {
     @MaxLength(30)
     @MinLength(3)
     @IsOptional()
+    @ApiModelProperty({ type: String, description: "Item title" })
     readonly title: string;
 
     @IsString()
@@ -14,6 +16,7 @@ export class UpdateItemDto {
     @MaxLength(30)
     @MinLength(3)
     @IsOptional()
+    @ApiModelProperty({ type: String, description: "Item title" })
     readonly description: string;
 
 }

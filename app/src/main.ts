@@ -1,5 +1,6 @@
 import { UnprocessableEntityException, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationError } from 'class-validator';
 import * as helmet from 'helmet';
 
@@ -38,6 +39,16 @@ async function bootstrap() {
   app.use(
     limiter,
     helmet());
+
+
+  const options = new DocumentBuilder()
+    .setTitle('Portfolio App')
+    .setDescription('Portfolio App api')
+    .setVersion('1.0')
+    .addTag('test app')
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('api/doc', app, document);
 
   await app.listen(3000);
 }
