@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { ItemModule } from './item/item.module';
 import { UserModule } from './user/user.module';
-import { PortfolioModule } from './portfolio/portfolio.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(), UserModule, AuthModule, PortfolioModule],
+  imports: [TypeOrmModule.forRoot(), UserModule, AuthModule, ItemModule],
   controllers: [AppController],
   providers: [AppService],
 })
