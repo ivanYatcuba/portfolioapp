@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate, } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { PasswordEncoder } from '../auth/passsword-encoder';
 
@@ -24,7 +24,10 @@ export class User {
     phone: string;
 
     @BeforeInsert()
+    @BeforeUpdate()
     async hashPassword() {
-        this.password = new PasswordEncoder().encodePassword(this.password);
+        if (this.password) {
+            this.password = new PasswordEncoder().encodePassword(this.password);
+        }
     }
 }

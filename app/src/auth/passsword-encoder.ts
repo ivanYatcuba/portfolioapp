@@ -9,6 +9,6 @@ export class PasswordEncoder {
     }
 
     compareHases(plainTextPassword: string, passwordHash: string): boolean {
-        return !bcrypt.compareSync(plainTextPassword, passwordHash);
+        return bcrypt.compareSync(plainTextPassword, passwordHash);
     }
 }
