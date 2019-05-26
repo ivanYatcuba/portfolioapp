@@ -5,6 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { PasswordEncoder } from './passsword-encoder';
 
 @Module({
     imports: [UserModule,
@@ -15,7 +16,8 @@ import { AuthController } from './auth.controller';
                 expiresIn: 3600,
             },
         }),],
-    providers: [AuthService, JwtStrategy],
+    providers: [AuthService, JwtStrategy, PasswordEncoder],
     controllers: [AuthController],
+    exports: [PasswordEncoder]
 })
 export class AuthModule { }

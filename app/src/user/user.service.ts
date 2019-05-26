@@ -15,6 +15,7 @@ export class UserService {
     constructor(
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
+        private readonly passwordEncoder: PasswordEncoder,
     ) { }
 
     findAll(): Promise<User[]> {
@@ -60,8 +61,7 @@ export class UserService {
                 throw new UnprocessableEntityException("New password must not be empty");
             }
             const passswordHash = await this.getUserPasswordHash(currentUserId);
-            const passwordEncoder = new PasswordEncoder();
-            if (passwordEncoder.compareHases(updateUserDto.currentPassword, passswordHash)) {
+            if (this.passwordEncoder.compareHases(updateUserDto.currentPassword, passswordHash)) {
                 user.password = updateUserDto.newPassword;
             } else {
                 throw new UnprocessableEntityException("Current password is wrong");
@@ -78,12 +78,8 @@ export class UserService {
         if (userExists) {
             throw new ConflictException("User with this email already exists");
         }
-        const user = new User();
-        user.email = userDto.email;
-        user.name = userDto.name;
-        user.password = userDto.password;
+        const user = Object.assign(new User(), userDto);
         user.birthDay = new Date(userDto.birthday);
-        user.phone = userDto.phone;
         return this.userRepository.save(user);
     }
 
@@ -122,7 +118,7 @@ export class UserService {
         }
 
         const passswordHash = await this.getUserPasswordHash(user.id);
-        if (!new PasswordEncoder().compareHases(credentials.password, passswordHash)) {
+        if (!this.passwordEncoder.compareHases(credentials.password, passswordHash)) {
             throw new NotFoundException("User not found");
         }
 
