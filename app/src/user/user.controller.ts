@@ -1,23 +1,24 @@
-import { Body, Controller, Get, Param, Put, UseGuards, NotFoundException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, UseGuards, NotFoundException, Query, Logger } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
-import { UpdateUserDto } from './update-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { CurrentUser } from './user.decorator';
 import { User } from './user.entity';
 import { UserService } from './user.service';
+import { SearchUserQuery } from './dto/search-user-query.dto';
 
 @Controller("api/user")
 export class UserController {
     constructor(
         private readonly userService: UserService, ) { }
 
-    @Get()
+    @Get("me")
     @UseGuards(AuthGuard("jwt"))
     getMyUserInfo(@CurrentUser('id') currentUserId: number): Promise<User> {
         return this.userService.findById(currentUserId);
     }
 
-    @Put()
+    @Put("me")
     @UseGuards(AuthGuard("jwt"))
     updateMyUserInfo(
         @Body() updateUserDto: UpdateUserDto,
@@ -33,5 +34,11 @@ export class UserController {
             throw new NotFoundException();
         }
         return user;
+    }
+
+    @Get()
+    @UseGuards(AuthGuard("jwt"))
+    async searchUsers(@Query() userSearchQuery: SearchUserQuery): Promise<User[]> {
+        return this.userService.findUsers(userSearchQuery);
     }
 }

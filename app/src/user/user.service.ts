@@ -1,12 +1,13 @@
-import { ConflictException, Injectable, Logger, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Credentials } from '../auth/dto/credentials.dto';
 import { RegisterUserDto } from '../auth/dto/register-user.dto';
 import { PasswordEncoder } from '../auth/passsword-encoder';
+import { SearchUserQuery } from './dto/search-user-query.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './user.entity';
-import { UpdateUserDto } from './update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -41,7 +42,7 @@ export class UserService {
         if (updateUserDto.email) {
             const emailedUser = await this.findByEmail(updateUserDto.email)
             if (emailedUser) {
-                if(emailedUser.id != currentUserId) {
+                if (emailedUser.id != currentUserId) {
                     throw new UnprocessableEntityException("Some other user already owns this email");
                 }
             }
@@ -84,6 +85,23 @@ export class UserService {
         user.birthDay = new Date(userDto.birthday);
         user.phone = userDto.phone;
         return this.userRepository.save(user);
+    }
+
+    async findUsers(userSearchQuery: SearchUserQuery): Promise<User[]> {
+        const qb = await this.userRepository
+            .createQueryBuilder('user')
+
+        qb.where("1 = 1");
+
+        if (userSearchQuery.email) {
+            qb.andWhere("user.email LIKE :email", { email: `%${userSearchQuery.email}%` });
+        }
+
+        if (userSearchQuery.name) {
+            qb.andWhere("user.name LIKE :name", { name: `%${userSearchQuery.name}%` });
+        }
+
+        return qb.getMany();
     }
 
     async getUserPasswordHash(id: number): Promise<string> {
