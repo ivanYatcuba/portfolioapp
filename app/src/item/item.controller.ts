@@ -1,9 +1,23 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseGuards, UseInterceptors, HttpException } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Post,
+    Put,
+    Query,
+    UploadedFile,
+    UseGuards,
+    UseInterceptors,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { FileInterceptor } from '@nestjs/platform-express'
+import { FileInterceptor } from '@nestjs/platform-express';
+
 import { CurrentUser } from '../user/user.decorator';
 import { User } from '../user/user.entity';
 import { CreateItemDto } from './dto/create-item.dto';
+import { SearchItemQuery } from './dto/item-search.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { Item } from './item.entity';
 import { ItemService } from './item.service';
@@ -51,5 +65,11 @@ export class ItemController {
     @Delete(':id/image')
     deleteFile(@Param('id') id: number) {
         return this.itemService.deleteItemImage(id);
+    }
+
+    @Get()
+    @UseGuards(AuthGuard("jwt"))
+    searchItems(@Query() itemSearchQuery: SearchItemQuery): Promise<Item[]> {
+        return this.itemService.searchItems(itemSearchQuery);
     }
 }
