@@ -1,10 +1,10 @@
-import { Controller, Get, UseGuards, Put, Body } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, UseGuards, NotFoundException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
+import { UpdateUserDto } from './update-user.dto';
 import { CurrentUser } from './user.decorator';
 import { User } from './user.entity';
 import { UserService } from './user.service';
-import { UpdateUserDto } from './update-user.dto';
 
 @Controller("api/user")
 export class UserController {
@@ -23,5 +23,15 @@ export class UserController {
         @Body() updateUserDto: UpdateUserDto,
         @CurrentUser('id') currentUserId: number): Promise<User> {
         return this.userService.updateUser(currentUserId, updateUserDto);
+    }
+
+    @Get(":id")
+    @UseGuards(AuthGuard("jwt"))
+    async getUserById(@Param('id') id: number): Promise<User> {
+        const user = await this.userService.findById(id);
+        if (!user) {
+            throw new NotFoundException();
+        }
+        return user;
     }
 }
