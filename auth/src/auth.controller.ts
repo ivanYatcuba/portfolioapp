@@ -1,7 +1,6 @@
 import { Body, ClassSerializerInterceptor, Controller, Post, UseInterceptors } from '@nestjs/common';
 import { ApiConflictResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOperation, ApiUseTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 
-import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import { Credentials } from './dto/credentials.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
@@ -12,7 +11,6 @@ import { Token } from './dto/token.interface';
 @Controller("api/auth")
 export class AuthController {
     constructor(
-        private readonly userService: UserService,
         private readonly authService: AuthService, ) { }
 
     @ApiOperation({ title: 'Register new user' })
