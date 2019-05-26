@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate, } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { PasswordEncoder } from '../auth/passsword-encoder';
+import { PasswordEncoder } from './passsword-encoder';
 
 @Entity()
 export class User {
@@ -26,6 +26,7 @@ export class User {
     @BeforeInsert()
     @BeforeUpdate()
     async hashPassword() {
+        //todo use auth microservice to encode password
         if (this.password) {
             this.password = new PasswordEncoder().encodePassword(this.password);
         }

@@ -1,14 +1,25 @@
 import { Module } from '@nestjs/common';
-import { UserService } from './user.service';
+import { Transport } from '@nestjs/common/enums/transport.enum';
+import { ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './user.entity';
+
+import { JwtStrategy } from './jwt.strategy';
+import { PasswordEncoder } from './passsword-encoder';
 import { UserController } from './user.controller';
-import { PasswordEncoder } from '../auth/passsword-encoder';
+import { User } from './user.entity';
+import { UserService } from './user.service';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([User])],
+    imports: [TypeOrmModule.forRoot(), TypeOrmModule.forFeature([User]),
+    ClientsModule.register([
+        {
+            name: 'AUTH_SERVICE',
+            transport: Transport.TCP,
+            options: { port: 3001 }
+        },
+    ]),],
     controllers: [UserController],
-    providers: [UserService, PasswordEncoder],
+    providers: [UserService, PasswordEncoder, JwtStrategy],
     exports: [UserService],
 })
 export class UserModule { }

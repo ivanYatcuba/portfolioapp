@@ -2,12 +2,12 @@ import { ConflictException, Injectable, NotFoundException, UnprocessableEntityEx
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { Credentials } from '../auth/dto/credentials.dto';
-import { RegisterUserDto } from '../auth/dto/register-user.dto';
-import { PasswordEncoder } from '../auth/passsword-encoder';
 import { SearchUserQuery } from './dto/search-user-query.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './user.entity';
+import { PasswordEncoder } from './passsword-encoder';
+import { RegisterUserDto } from './dto/register-user.dto';
+import { Credentials } from './dto/credentials.dto';
 
 @Injectable()
 export class UserService {

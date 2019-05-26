@@ -6,14 +6,17 @@ import { PassportModule } from '@nestjs/passport';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtStrategy } from './jwt.strategy';
 import { PasswordEncoder } from './passsword-encoder';
 
 @Module({
     imports: [
         PassportModule.register({ defaultStrategy: 'jwt' }),
         ClientsModule.register([
-            { name: 'USER_SERVICE', transport: Transport.TCP },
+            {
+                name: 'USER_SERVICE',
+                transport: Transport.TCP,
+                options: { port: 4001 }
+            },
         ]),
         JwtModule.register({
             secretOrPrivateKey: 'secretKey',
@@ -22,7 +25,7 @@ import { PasswordEncoder } from './passsword-encoder';
             },
         }),
     ],
-    providers: [AuthService, JwtStrategy, PasswordEncoder],
+    providers: [AuthService, PasswordEncoder],
     controllers: [AuthController],
     exports: [PasswordEncoder]
 })

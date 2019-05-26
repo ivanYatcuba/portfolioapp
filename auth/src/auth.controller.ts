@@ -1,10 +1,15 @@
-import { Body, ClassSerializerInterceptor, Controller, Post, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Post, UseInterceptors, UseFilters } from '@nestjs/common';
 import { ApiConflictResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOperation, ApiUseTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 import { Credentials } from './dto/credentials.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { Token } from './dto/token.interface';
+import { Http2RpcExceptionFilter } from './exception/http-rpc-exception.filter';
+import { Rpc2HttpExceptionFilter } from './exception/rpc-http-exception.filter';
+import { MessagePattern } from '@nestjs/microservices';
+import { JwtPayload } from './dto/jwt-payload.interface';
+import { UserInfo } from './dto/user-info.dto';
 
 @ApiUseTags('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -18,6 +23,7 @@ export class AuthController {
     @ApiConflictResponse({ description: 'User with this email already exists.' })
     @ApiUnprocessableEntityResponse({ description: 'Data validation error.' })
     @Post("register")
+    @UseFilters(Rpc2HttpExceptionFilter)
     registerUser(@Body() registerUserDto: RegisterUserDto): Promise<Token> {
         return this.authService.register(registerUserDto);
     }
@@ -27,7 +33,14 @@ export class AuthController {
     @ApiNotFoundResponse({ description: 'User With such credentials not found' })
     @ApiUnprocessableEntityResponse({ description: 'Data validation error.' })
     @Post("login")
+    @UseFilters(Rpc2HttpExceptionFilter)
     registerUloginser(@Body() credentials: Credentials): Promise<Token> {
         return this.authService.signIn(credentials);
+    }
+
+    @UseFilters(Http2RpcExceptionFilter)
+    @MessagePattern({ cmd: 'auth-validate' })
+    validateUser(signedUser: JwtPayload): Promise<UserInfo> {
+        return this.authService.validateUser(signedUser);
     }
 }

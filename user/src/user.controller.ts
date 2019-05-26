@@ -1,4 +1,5 @@
-import { Body, Controller, Get, NotFoundException, Param, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Put, Query, UseFilters, UseGuards } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
 import { AuthGuard } from '@nestjs/passport';
 import {
     ApiBearerAuth,
@@ -10,8 +11,11 @@ import {
     ApiUseTags,
 } from '@nestjs/swagger';
 
+import { Credentials } from './dto/credentials.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
 import { SearchUserQuery } from './dto/search-user-query.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Http2RpcExceptionFilter } from './exception/http-rpc-exception.filter';
 import { CurrentUser } from './user.decorator';
 import { User } from './user.entity';
 import { UserService } from './user.service';
@@ -67,4 +71,23 @@ export class UserController {
     async searchUsers(@Query() userSearchQuery: SearchUserQuery): Promise<User[]> {
         return this.userService.findUsers(userSearchQuery);
     }
+
+    @UseFilters(Http2RpcExceptionFilter)
+    @MessagePattern({ cmd: 'user-register' })
+    registerUser(registerUserDto: RegisterUserDto): Promise<User> {
+        return this.userService.registerUser(registerUserDto);
+    }
+
+    @UseFilters(Http2RpcExceptionFilter)
+    @MessagePattern({ cmd: 'user-login' })
+    login(credentials: Credentials): Promise<User> {
+        return this.userService.login(credentials);
+    }
+
+    @UseFilters(Http2RpcExceptionFilter)
+    @MessagePattern({ cmd: 'user-find-by-email' })
+    findByEmail(email: string): Promise<User> {
+        return this.userService.findByEmail(email);
+    }
+
 }

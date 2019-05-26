@@ -11,7 +11,7 @@ declare const module: any;
 
 async function bootstrap() {
   const app = await NestFactory.create(AuthModule, { cors: true });
-  const microservice = app.connectMicroservice({
+  app.connectMicroservice({
     transport: Transport.TCP,
     options: {
       port: 3001
