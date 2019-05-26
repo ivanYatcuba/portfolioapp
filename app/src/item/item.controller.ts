@@ -63,8 +63,9 @@ export class ItemController {
     @UseGuards(AuthGuard("jwt"))
     updateItem(
         @Param('id') id: number,
+        @CurrentUser('id') currentUserId: number,
         @Body() updateItemDto: UpdateItemDto): Promise<Item> {
-        return this.itemService.updateItem(id, updateItemDto);
+        return this.itemService.updateItem(id, updateItemDto, currentUserId);
     }
 
     @ApiOperation({ title: 'Get existing item by id' })
@@ -74,8 +75,10 @@ export class ItemController {
     @ApiUnauthorizedResponse({ description: 'Not authorized' })
     @Get(":id")
     @UseGuards(AuthGuard("jwt"))
-    getItem(@Param('id') id: number): Promise<Item> {
-        return this.itemService.getItem(id);
+    getItem(
+        @Param('id') id: number,
+        @CurrentUser('id') currentUserId: number): Promise<Item> {
+        return this.itemService.getItem(id, currentUserId);
     }
 
     @ApiOperation({ title: 'Remove item by id' })
@@ -85,8 +88,10 @@ export class ItemController {
     @ApiUnauthorizedResponse({ description: 'Not authorized' })
     @Delete(":id")
     @UseGuards(AuthGuard("jwt"))
-    deleteItem(@Param('id') id: number): Promise<Item> {
-        return this.itemService.removeItem(id);
+    deleteItem(
+        @Param('id') id: number,
+        @CurrentUser('id') currentUserId: number): Promise<Item> {
+        return this.itemService.removeItem(id, currentUserId);
     }
 
     @ApiOperation({ title: 'Attach image to item' })
@@ -96,8 +101,11 @@ export class ItemController {
     @ApiUnauthorizedResponse({ description: 'Not authorized' })
     @Post(':id/image')
     @UseInterceptors(FileInterceptor('file'))
-    uploadItemFile(@Param('id') id: number, @UploadedFile() file) {
-        return this.itemService.updateItemImage(id, file.path);
+    uploadItemFile(
+        @Param('id') id: number,
+        @CurrentUser('id') currentUserId: number,
+        @UploadedFile() file) {
+        return this.itemService.updateItemImage(id, file.path, currentUserId);
     }
 
     @ApiOperation({ title: 'Remove image from item' })
@@ -106,8 +114,10 @@ export class ItemController {
     @ApiForbiddenResponse({ description: 'You cannot modify this item' })
     @ApiUnauthorizedResponse({ description: 'Not authorized' })
     @Delete(':id/image')
-    deleteFile(@Param('id') id: number) {
-        return this.itemService.deleteItemImage(id);
+    deleteFile(
+        @Param('id') id: number,
+        @CurrentUser('id') currentUserId: number) {
+        return this.itemService.deleteItemImage(id, currentUserId);
     }
 
     @ApiOperation({ title: 'Search items by filter' })
@@ -115,7 +125,9 @@ export class ItemController {
     @ApiUnauthorizedResponse({ description: 'Not authorized' })
     @Get()
     @UseGuards(AuthGuard("jwt"))
-    searchItems(@Query() itemSearchQuery: SearchItemQuery): Promise<Item[]> {
-        return this.itemService.searchItems(itemSearchQuery);
+    searchItems(
+        @Query() itemSearchQuery: SearchItemQuery,
+        @CurrentUser('id') currentUserId: number): Promise<Item[]> {
+        return this.itemService.searchItems(itemSearchQuery, currentUserId);
     }
 }

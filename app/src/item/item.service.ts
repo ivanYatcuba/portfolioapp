@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -21,30 +21,41 @@ export class ItemService {
         return this.itemRepository.save(Object.assign(item, createItem));
     }
 
-    async updateItem(itemId: number, updateItem: UpdateItemDto): Promise<Item> {
+    async updateItem(itemId: number, updateItem: UpdateItemDto, userId: number): Promise<Item> {
         const toUpdate = await this.itemRepository.findOne({ id: itemId });
         if (!toUpdate) {
             throw new NotFoundException();
+        }
+        if (!await this.isMyItem(userId, itemId)) {
+            throw new ForbiddenException("You are not owner of this item");
         }
         const updated = Object.assign(toUpdate, updateItem);
         return this.itemRepository.save(updated);
     }
 
-    async updateItemImage(itemId: number, image: string): Promise<Item> {
+    async updateItemImage(itemId: number, image: string, userId: number): Promise<Item> {
         const toUpdate = await this.itemRepository.findOne({ id: itemId });
         if (!toUpdate) {
             const fs = require('fs');
             fs.unlinkSync(image);
             throw new NotFoundException();
         }
+        if (!await this.isMyItem(userId, itemId)) {
+            const fs = require('fs');
+            fs.unlinkSync(image);
+            throw new ForbiddenException("You are not owner of this item");
+        }
         const updated = Object.assign(toUpdate, { image: image });
         return this.itemRepository.save(updated);
     }
 
-    async deleteItemImage(itemId: number): Promise<Item> {
+    async deleteItemImage(itemId: number, userId: number): Promise<Item> {
         const toUpdate = await this.itemRepository.findOne({ id: itemId });
         if (!toUpdate) {
             throw new NotFoundException();
+        }
+        if (!await this.isMyItem(userId, itemId)) {
+            throw new ForbiddenException("You are not owner of this item");
         }
         const fs = require('fs');
         fs.unlinkSync(toUpdate.image);
@@ -52,18 +63,24 @@ export class ItemService {
         return this.itemRepository.save(updated);
     }
 
-    async getItem(itemId: number): Promise<Item> {
+    async getItem(itemId: number, userId: number): Promise<Item> {
         const item = await this.itemRepository.findOne({ id: itemId });
         if (!item) {
             throw new NotFoundException();
         }
+        if (!await this.isMyItem(userId, itemId)) {
+            throw new ForbiddenException("You are not owner of this item");
+        }
         return item;
     }
 
-    async removeItem(itemId: number): Promise<Item> {
+    async removeItem(itemId: number, userId: number): Promise<Item> {
         const toRemove = await this.itemRepository.findOne({ id: itemId });
         if (!toRemove) {
             throw new NotFoundException();
+        }
+        if (!await this.isMyItem(userId, itemId)) {
+            throw new ForbiddenException("You are not owner of this item");
         }
         return this.itemRepository
             .delete({ id: itemId })
@@ -72,7 +89,7 @@ export class ItemService {
             });
     }
 
-    async searchItems(searchItemsDto: SearchItemQuery) {
+    async searchItems(searchItemsDto: SearchItemQuery, userId: number) {
         const qb = await this.itemRepository.createQueryBuilder('item')
 
         qb.where("1 = 1");
@@ -81,14 +98,24 @@ export class ItemService {
             qb.andWhere("item.title LIKE :title", { title: `%${searchItemsDto.title}%` });
         }
 
-        if (searchItemsDto.userId) {
-            qb.andWhere("item.user = :userId", { userId: searchItemsDto.userId });
+        if (searchItemsDto.description) {
+            qb.andWhere("item.description = :description", { description: `%${searchItemsDto.description}%` });
         }
 
-        const order = searchItemsDto.orderBy == OrderBy.asc ? "ASC" : "DESC";
+        const order = searchItemsDto.orderBy == "asc" ? "ASC" : "DESC";
 
         qb.orderBy(`${OrderType[searchItemsDto.orderType]}`, order);
+        qb.andWhere("item.user = :user", { user: userId })
         qb.leftJoinAndSelect("item.user", "user");
         return qb.getMany();
+    }
+
+    async isMyItem(userId: number, itemId: number): Promise<Boolean> {
+        return (await this.itemRepository
+            .count({
+                id: itemId,
+                user: Object.assign(new User(), { id: userId }
+                )
+            })) > 0;
     }
 }

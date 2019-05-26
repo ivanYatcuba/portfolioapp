@@ -7,7 +7,7 @@ export enum OrderBy {
 
 export enum OrderType {
     createdAt,
-    title,
+    description,
 }
 
 export class SearchItemQuery {
@@ -19,15 +19,16 @@ export class SearchItemQuery {
     @IsOptional()
     readonly title: string;
 
+    @IsString()
     @IsOptional()
-    readonly userId: number;
+    readonly description: string;
 
     @IsOptional()
-    @IsIn([OrderBy.asc, OrderBy.desc])
-    readonly orderBy: OrderBy = OrderBy.desc;
+    @IsIn([OrderBy[OrderBy.asc], OrderBy[OrderBy.desc]])
+    readonly orderBy: string = OrderBy[OrderBy.desc];
 
     @IsOptional()
-    @IsIn([OrderType.createdAt, OrderType.title])
-    readonly orderType: OrderType = OrderType.createdAt;
+    @IsIn([OrderType[OrderType.createdAt], OrderType[OrderType.description]])
+    readonly orderType: string = OrderType[OrderType.createdAt];
 
 }
