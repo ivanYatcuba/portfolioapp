@@ -8,7 +8,6 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { Token } from './dto/token.interface';
 
 @ApiUseTags('auth')
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller("api/auth")
 export class AuthController {
     constructor(
