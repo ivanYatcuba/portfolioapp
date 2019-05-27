@@ -7,9 +7,12 @@ import { extname } from 'path';
 import { ItemController } from './item.controller';
 import { Item } from './item.entity';
 import { ItemService } from './item.service';
+import { Transport } from '@nestjs/common/enums/transport.enum';
+import { ClientsModule } from '@nestjs/microservices';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Item]), MulterModule.register({
+  imports: [TypeOrmModule.forRoot(), TypeOrmModule.forFeature([Item]), MulterModule.register({
     storage: diskStorage({
       destination: './items',
       filename: (_, file, cb) => {
@@ -18,8 +21,23 @@ import { ItemService } from './item.service';
         return cb(null, `${randomName}${extname(file.originalname)}`)
       }
     }),
-  }),],
+  }),
+  ClientsModule.register([
+    {
+      name: 'AUTH_SERVICE',
+      transport: Transport.TCP,
+      options: { port: 3001 }
+    },
+  ]),
+  ClientsModule.register([
+    {
+      name: 'USER_SERVICE',
+      transport: Transport.TCP,
+      options: { port: 4001 }
+    },
+  ]),
+  ],
   controllers: [ItemController],
-  providers: [ItemService]
+  providers: [ItemService, JwtStrategy]
 })
 export class ItemModule { }

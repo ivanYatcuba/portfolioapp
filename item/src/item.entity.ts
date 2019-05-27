@@ -1,4 +1,3 @@
-import { User } from '../user/user.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
 
 @Entity()
@@ -7,8 +6,8 @@ export class Item {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(type => User, user => user.id, { nullable: false, eager: true })
-    user: User;
+    @Column()
+    user: number;
 
     @Column({ length: 120, nullable: false, })
     title: string;
@@ -26,5 +25,6 @@ export class Item {
     async createAt() {
         this.createdAt = new Date();
     }
+    
 
 }

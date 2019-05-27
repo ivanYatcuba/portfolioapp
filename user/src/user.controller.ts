@@ -90,4 +90,10 @@ export class UserController {
         return this.userService.findByEmail(email);
     }
 
+    @UseFilters(Http2RpcExceptionFilter)
+    @MessagePattern({ cmd: 'user-by-id' })
+    findById(id: number): Promise<User> {
+        return this.userService.findById(id);
+    }
+
 }

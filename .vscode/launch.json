@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Launch Program",
             "args": [
-                "${workspaceFolder}/auth/src/main.ts"
+                "${workspaceFolder}/item/src/main.ts"
             ],
             "runtimeArgs": [
                 "--nolazy",
@@ -17,7 +17,7 @@
                 "ts-node/register"
             ],
             "sourceMaps": true,
-            "cwd": "${workspaceRoot}/auth/",
+            "cwd": "${workspaceRoot}/item/",
             "protocol": "inspector"
         }
     ]

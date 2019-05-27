@@ -1,15 +1,22 @@
 import { UnprocessableEntityException, ValidationPipe } from '@nestjs/common';
+import { Transport } from '@nestjs/common/enums/transport.enum';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationError } from 'class-validator';
 import * as helmet from 'helmet';
 
-import { AppModule } from './app.module';
+import { ItemModule } from './item.module';
 
 declare const module: any;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(ItemModule, { cors: true });
+  app.connectMicroservice({
+    transport: Transport.TCP,
+    options: {
+      port: 5001
+    },
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -50,6 +57,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api/doc', app, document);
 
-  await app.listen(3000);
+  await app.listen(5000);
 }
 bootstrap();

@@ -9,6 +9,7 @@ import {
     Put,
     Query,
     UploadedFile,
+    UseFilters,
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
@@ -26,13 +27,13 @@ import {
     ApiUseTags,
 } from '@nestjs/swagger';
 
-import { CurrentUser } from '../user/user.decorator';
-import { User } from '../user/user.entity';
 import { CreateItemDto } from './dto/create-item.dto';
+import { ItemDto } from './dto/item-dto';
 import { SearchItemQuery } from './dto/item-search.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
-import { Item } from './item.entity';
+import { Rpc2HttpExceptionFilter } from './exception/rpc-http-exception.filter';
 import { ItemService } from './item.service';
+import { CurrentUser } from './user.decorator';
 
 @ApiBearerAuth()
 @ApiUseTags('item')
@@ -47,10 +48,12 @@ export class ItemController {
     @Put()
     @HttpCode(201)
     @UseGuards(AuthGuard("jwt"))
+    @UseFilters(Rpc2HttpExceptionFilter)
+    @UseFilters(Rpc2HttpExceptionFilter)
     createItem(
         @Body() createItemDto: CreateItemDto,
-        @CurrentUser() currentUser: User): Promise<Item> {
-        return this.itemService.createItem(currentUser, createItemDto);
+        @CurrentUser('id') currentUserId: number): Promise<ItemDto> {
+        return this.itemService.createItem(currentUserId, createItemDto);
     }
 
     @ApiOperation({ title: 'Update existing item' })
@@ -61,10 +64,11 @@ export class ItemController {
     @ApiUnauthorizedResponse({ description: 'Not authorized' })
     @Put(":id")
     @UseGuards(AuthGuard("jwt"))
+    @UseFilters(Rpc2HttpExceptionFilter)
     updateItem(
         @Param('id') id: number,
         @CurrentUser('id') currentUserId: number,
-        @Body() updateItemDto: UpdateItemDto): Promise<Item> {
+        @Body() updateItemDto: UpdateItemDto): Promise<ItemDto> {
         return this.itemService.updateItem(id, updateItemDto, currentUserId);
     }
 
@@ -75,9 +79,10 @@ export class ItemController {
     @ApiUnauthorizedResponse({ description: 'Not authorized' })
     @Get(":id")
     @UseGuards(AuthGuard("jwt"))
+    @UseFilters(Rpc2HttpExceptionFilter)
     getItem(
         @Param('id') id: number,
-        @CurrentUser('id') currentUserId: number): Promise<Item> {
+        @CurrentUser('id') currentUserId: number): Promise<ItemDto> {
         return this.itemService.getItem(id, currentUserId);
     }
 
@@ -88,9 +93,10 @@ export class ItemController {
     @ApiUnauthorizedResponse({ description: 'Not authorized' })
     @Delete(":id")
     @UseGuards(AuthGuard("jwt"))
+    @UseFilters(Rpc2HttpExceptionFilter)
     deleteItem(
         @Param('id') id: number,
-        @CurrentUser('id') currentUserId: number): Promise<Item> {
+        @CurrentUser('id') currentUserId: number): Promise<ItemDto> {
         return this.itemService.removeItem(id, currentUserId);
     }
 
@@ -101,6 +107,7 @@ export class ItemController {
     @ApiUnauthorizedResponse({ description: 'Not authorized' })
     @Post(':id/image')
     @UseInterceptors(FileInterceptor('file'))
+    @UseFilters(Rpc2HttpExceptionFilter)
     uploadItemFile(
         @Param('id') id: number,
         @CurrentUser('id') currentUserId: number,
@@ -114,9 +121,10 @@ export class ItemController {
     @ApiForbiddenResponse({ description: 'You cannot modify this item' })
     @ApiUnauthorizedResponse({ description: 'Not authorized' })
     @Delete(':id/image')
+    @UseFilters(Rpc2HttpExceptionFilter)
     deleteFile(
         @Param('id') id: number,
-        @CurrentUser('id') currentUserId: number) {
+        @CurrentUser('id') currentUserId: number): Promise<ItemDto> {
         return this.itemService.deleteItemImage(id, currentUserId);
     }
 
@@ -125,9 +133,10 @@ export class ItemController {
     @ApiUnauthorizedResponse({ description: 'Not authorized' })
     @Get()
     @UseGuards(AuthGuard("jwt"))
+    @UseFilters(Rpc2HttpExceptionFilter)
     searchItems(
         @Query() itemSearchQuery: SearchItemQuery,
-        @CurrentUser('id') currentUserId: number): Promise<Item[]> {
+        @CurrentUser('id') currentUserId: number): Promise<ItemDto[]> {
         return this.itemService.searchItems(itemSearchQuery, currentUserId);
     }
 }
