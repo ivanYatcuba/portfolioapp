@@ -12,7 +12,6 @@ import { JwtPayload } from './dto/jwt-payload.interface';
 import { UserInfo } from './dto/user-info.dto';
 
 @ApiUseTags('auth')
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller("api/auth")
 export class AuthController {
     constructor(

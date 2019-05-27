@@ -49,7 +49,6 @@ export class ItemController {
     @HttpCode(201)
     @UseGuards(AuthGuard("jwt"))
     @UseFilters(Rpc2HttpExceptionFilter)
-    @UseFilters(Rpc2HttpExceptionFilter)
     createItem(
         @Body() createItemDto: CreateItemDto,
         @CurrentUser('id') currentUserId: number): Promise<ItemDto> {
